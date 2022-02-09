@@ -22,6 +22,7 @@
 		84D3BA1C27B3EC3700A6F3D0 /* PhotosInfoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3BA1B27B3EC3700A6F3D0 /* PhotosInfoManager.swift */; };
 		84D3BA1E27B3FC4900A6F3D0 /* ImageNetClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3BA1D27B3FC4900A6F3D0 /* ImageNetClient.swift */; };
 		84D3BA2227B3FD1800A6F3D0 /* UIImageView+SetImageFromPhoto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3BA2127B3FD1800A6F3D0 /* UIImageView+SetImageFromPhoto.swift */; };
+		84D3BA2627B3FE7400A6F3D0 /* Montserrat-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 84D3BA2527B3FE7400A6F3D0 /* Montserrat-MediumItalic.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +43,7 @@
 		84D3BA1B27B3EC3700A6F3D0 /* PhotosInfoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotosInfoManager.swift; sourceTree = "<group>"; };
 		84D3BA1D27B3FC4900A6F3D0 /* ImageNetClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageNetClient.swift; sourceTree = "<group>"; };
 		84D3BA2127B3FD1800A6F3D0 /* UIImageView+SetImageFromPhoto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+SetImageFromPhoto.swift"; sourceTree = "<group>"; };
+		84D3BA2527B3FE7400A6F3D0 /* Montserrat-MediumItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-MediumItalic.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +76,7 @@
 		84D3B9E627B3DDF900A6F3D0 /* JustPhotoGalery */ = {
 			isa = PBXGroup;
 			children = (
+				84D3BA2327B3FE3600A6F3D0 /* Resources */,
 				84D3BA1F27B3FCDB00A6F3D0 /* Extensions */,
 				84D3BA1827B3EAD100A6F3D0 /* Models */,
 				84D3BA1527B3EA6B00A6F3D0 /* Network */,
@@ -166,6 +169,22 @@
 			path = UIImageView;
 			sourceTree = "<group>";
 		};
+		84D3BA2327B3FE3600A6F3D0 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				84D3BA2427B3FE3D00A6F3D0 /* Fonts */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		84D3BA2427B3FE3D00A6F3D0 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				84D3BA2527B3FE7400A6F3D0 /* Montserrat-MediumItalic.ttf */,
+			);
+			path = Fonts;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -224,6 +243,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				84D3B9F427B3DDFC00A6F3D0 /* LaunchScreen.storyboard in Resources */,
+				84D3BA2627B3FE7400A6F3D0 /* Montserrat-MediumItalic.ttf in Resources */,
 				84D3B9F127B3DDFC00A6F3D0 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
