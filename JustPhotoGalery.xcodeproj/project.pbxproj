@@ -14,9 +14,6 @@
 		84D3B9FF27B3E0A300A6F3D0 /* BaseRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3B9FE27B3E0A300A6F3D0 /* BaseRouter.swift */; };
 		84D3BA0127B3E0B100A6F3D0 /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3BA0027B3E0B100A6F3D0 /* BaseViewController.swift */; };
 		84D3BA0327B3E0BE00A6F3D0 /* Consts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3BA0227B3E0BE00A6F3D0 /* Consts.swift */; };
-		84D3BA0727B3E52E00A6F3D0 /* PhotoGaleryContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3BA0627B3E52E00A6F3D0 /* PhotoGaleryContentView.swift */; };
-		84D3BA0927B3E55500A6F3D0 /* PhotoGaleryCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3BA0827B3E55500A6F3D0 /* PhotoGaleryCollectionViewCell.swift */; };
-		84D3BA0B27B3E57B00A6F3D0 /* PhotoGaleryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3BA0A27B3E57B00A6F3D0 /* PhotoGaleryViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,9 +26,6 @@
 		84D3B9FE27B3E0A300A6F3D0 /* BaseRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseRouter.swift; sourceTree = "<group>"; };
 		84D3BA0027B3E0B100A6F3D0 /* BaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
 		84D3BA0227B3E0BE00A6F3D0 /* Consts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Consts.swift; sourceTree = "<group>"; };
-		84D3BA0627B3E52E00A6F3D0 /* PhotoGaleryContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGaleryContentView.swift; sourceTree = "<group>"; };
-		84D3BA0827B3E55500A6F3D0 /* PhotoGaleryCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGaleryCollectionViewCell.swift; sourceTree = "<group>"; };
-		84D3BA0A27B3E57B00A6F3D0 /* PhotoGaleryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGaleryViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,17 +60,8 @@
 			children = (
 				84D3B9FD27B3DE2600A6F3D0 /* Utilits */,
 				84D3B9FC27B3DE0E00A6F3D0 /* Support */,
-				84D3B9FB27B3DE0200A6F3D0 /* Screens */,
 			);
 			path = JustPhotoGalery;
-			sourceTree = "<group>";
-		};
-		84D3B9FB27B3DE0200A6F3D0 /* Screens */ = {
-			isa = PBXGroup;
-			children = (
-				84D3BA0427B3E10D00A6F3D0 /* PhotoGaleryVC */,
-			);
-			path = Screens;
 			sourceTree = "<group>";
 		};
 		84D3B9FC27B3DE0E00A6F3D0 /* Support */ = {
@@ -99,24 +84,6 @@
 				84D3BA0227B3E0BE00A6F3D0 /* Consts.swift */,
 			);
 			path = Utilits;
-			sourceTree = "<group>";
-		};
-		84D3BA0427B3E10D00A6F3D0 /* PhotoGaleryVC */ = {
-			isa = PBXGroup;
-			children = (
-				84D3BA0527B3E50000A6F3D0 /* Views */,
-				84D3BA0A27B3E57B00A6F3D0 /* PhotoGaleryViewController.swift */,
-			);
-			path = PhotoGaleryVC;
-			sourceTree = "<group>";
-		};
-		84D3BA0527B3E50000A6F3D0 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				84D3BA0627B3E52E00A6F3D0 /* PhotoGaleryContentView.swift */,
-				84D3BA0827B3E55500A6F3D0 /* PhotoGaleryCollectionViewCell.swift */,
-			);
-			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -193,9 +160,6 @@
 				84D3BA0127B3E0B100A6F3D0 /* BaseViewController.swift in Sources */,
 				84D3B9FF27B3E0A300A6F3D0 /* BaseRouter.swift in Sources */,
 				84D3B9EA27B3DDF900A6F3D0 /* SceneDelegate.swift in Sources */,
-				84D3BA0727B3E52E00A6F3D0 /* PhotoGaleryContentView.swift in Sources */,
-				84D3BA0927B3E55500A6F3D0 /* PhotoGaleryCollectionViewCell.swift in Sources */,
-				84D3BA0B27B3E57B00A6F3D0 /* PhotoGaleryViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
