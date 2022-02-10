@@ -7,9 +7,9 @@
 
 import Foundation
 
-typealias PhotosInfoDictionary = [String: Photo]
+typealias PhotosInfoDictionary = [String: PhotosInfo]
 
-struct Photo: Codable {
+struct PhotosInfo: Codable, Hashable {
     let photoURL, userURL: String?
     let userName: String?
     let colors: [String]?
