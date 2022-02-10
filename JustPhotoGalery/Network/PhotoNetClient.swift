@@ -13,14 +13,14 @@ protocol PhotoNetClientProtocol {
 
 class PhotoNetClient: PhotoNetClientProtocol {
     private enum RequestError: Error{
-        case noBaseURLExistsForSpaceXObject(object:Photo)
+        case noBaseURLExistsForSpaceXObject(object:PhotosInfo)
     }
 
     private let baseUrls: URL
     private let urlSession: URLSession
     private var resopnseQueue: DispatchQueue? = nil
 
-    static let shared = PhotoNetClient(baseUrls: URL(string: "http://dev.bgsoft.biz/")!,
+    static let shared = PhotoNetClient(baseUrls: URL(string: "https://dev.bgsoft.biz/")!,
                                        urlSession: URLSession.shared,
                                        responseQueue: .main)
 
@@ -33,7 +33,7 @@ class PhotoNetClient: PhotoNetClientProtocol {
 
     // MARK: - public funcs
     func getAllPhotos(complition: @escaping (PhotosInfoDictionary?, Error?) -> ()) -> URLSessionDataTask? {
-        guard let url = URL(string: "task/", relativeTo: baseUrls) else { return nil}
+        guard let url = URL(string: "/task/credits.json", relativeTo: baseUrls) else { return nil}
 
         let dataTask = urlSession.dataTask(with: url) {[weak self] data, response, error in
             guard let self = self else {return}
