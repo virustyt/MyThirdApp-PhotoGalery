@@ -7,11 +7,11 @@
 
 import UIKit
 
-class UIImageView_SetImageFromPhoto: UIImageView {
+extension UIImageView {
 
-    func setImage(from photo: Photo?) {
-        guard let photosUrlAdress = photo?.photoURL,
-              let photosUrl = URL(string: photosUrlAdress)
+    func setImageFromBGSoftDataStoreBy(photosName name: String?) {
+        guard let photosName = name,
+              let photosUrl = URL(string: "https://dev.bgsoft.biz/task/\(photosName).jpg")
         else {
             self.image = UIImage(named: "placeholder")
             return
