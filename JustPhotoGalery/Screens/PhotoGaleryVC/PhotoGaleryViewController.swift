@@ -31,27 +31,12 @@ class PhotoGaleryViewController: BaseViewController{
                                              cellProvider: { [weak self]
                                                 (collectionView, indexPath, photo) -> UICollectionViewCell? in
 
-                                                let cell = collectionView.dequeueReusableCell(
-                                                    withReuseIdentifier: PhotoGaleryCollectionViewCell.identifyer,
-                                                    for: indexPath) as? PhotoGaleryCollectionViewCell
-
-                                                self?.viewModel?.getSortedPhotos(complition: {
-                                                    [weak self] result in
-                                                    switch result {
-                                                    case .success(let photos):
-                                                        let photo = photos[indexPath.item]
-                                                        cell?.setUp(from: photo, andInsets: self?.view.safeAreaInsets)
-                                                    case .failure(_):
-                                                        // do some stuff here
-                                                    return
-                                                    }
-                                                })
-                                                return cell
+                                                self?.makeCell(from: photo, for: collectionView, withIndexPath: indexPath)
                                              })
         return difffableDataSource
     }()
 
-    private var currentCollectionViewItem: Int?
+    private var lastVisibleCellsIndexPath: IndexPath?
 
     // MARK: - life cycle
     override func viewDidLoad() {
@@ -62,24 +47,26 @@ class PhotoGaleryViewController: BaseViewController{
     }
 
     override func viewWillAppear(_ animated: Bool) {
-//        self.navigationController?.setNavigationBarHidden(true, animated: false)
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
         super.viewWillAppear(animated)
+    }
+
+    override func willTransition(to newCollection: UITraitCollection, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.willTransition(to: newCollection, with: coordinator)
+        lastVisibleCellsIndexPath = targetIndexPath()
+        photoGaleryContainerView.collectionView.collectionViewLayout.invalidateLayout()
+        refreshData()
+    }
+
+    override func viewDidLayoutSubviews() {
+        if let indexPath = lastVisibleCellsIndexPath {
+            photoGaleryContainerView.collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(false, animated: false)
         super.viewWillDisappear(animated)
-    }
-
-    override func viewWillLayoutSubviews() {
-        photoGaleryContainerView.collectionView.collectionViewLayout.invalidateLayout()
-        photoGaleryContainerView.collectionView.setContentOffset(makeContentOffset(for: currentCollectionViewItem ?? 0), animated: true)
-    }
-
-    override func willTransition(to newCollection: UITraitCollection, with coordinator: UIViewControllerTransitionCoordinator) {
-        super.willTransition(to: newCollection, with: coordinator)
-        currentCollectionViewItem = indexOfMajorCell()
-        refreshData()
     }
 
     // MARK: - private funcs
@@ -90,11 +77,10 @@ class PhotoGaleryViewController: BaseViewController{
             switch result {
             case .success(let photos):
                 self?.applySnapshot(for: photos)
-                self?.photoGaleryContainerView.collectionView.refreshControl?.endRefreshing()
             case .failure(_):
-                // do some stuff here
-                self?.photoGaleryContainerView.collectionView.refreshControl?.endRefreshing()
+                break
             }
+            self?.photoGaleryContainerView.collectionView.refreshControl?.endRefreshing()
         })
     }
 
@@ -124,17 +110,30 @@ class PhotoGaleryViewController: BaseViewController{
         snapshot.appendItems(newPhotos)
         dataSource.apply(snapshot, animatingDifferences: animatingDifferences)
     }
+
+    private func makeCell(from photo: Photo, for collectionView: UICollectionView, withIndexPath indexPath: IndexPath ) -> UICollectionViewCell? {
+        let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: PhotoGaleryCollectionViewCell.identifyer,
+            for: indexPath) as? PhotoGaleryCollectionViewCell
+
+        let photo = viewModel?.sortedPhotos?[indexPath.item]
+        let authorUrl = photo?.photosInfo?.userURL
+        let photosDescriptionUrl = photo?.photosInfo?.photoURL
+
+        cell?.setUp(from: photo,
+                    photoInsets: view.safeAreaInsets,
+                    authorsLinkOnTapClouser: { [weak self] in self?.router?.showWebLinkVC(for: authorUrl,
+                                                                                          withTitle: "photos author")},
+                    photosLinkOnTapClouser: { [weak self] in self?.router?.showWebLinkVC(for: photosDescriptionUrl,
+                                                                                         withTitle: "photos details")})
+        return cell
+    }
 }
 
 // MARK: - UICollectionViewDelegateFlowLayout
 extension PhotoGaleryViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        print("collectionView-",collectionView.frame.size,"screen-", UIScreen.main.bounds.size,"frame-",view.frame.size)
-        return view.safeAreaLayoutGuide.layoutFrame.size
-
-//        return UIScreen.main.bounds.size
-//        return CGSize(width: UIScreen.main.bounds.size.width - 1,
-//                      height: UIScreen.main.bounds.size.height - 1)
+        return UIScreen.main.bounds.size
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
@@ -146,16 +145,23 @@ extension PhotoGaleryViewController: UICollectionViewDelegateFlowLayout {
     }
 
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        targetContentOffset.pointee = makeContentOffset(for: indexOfMajorCell())
+        guard velocity.x == .zero else {
+            return
+        }
+        photoGaleryContainerView.collectionView.scrollToItem(at: targetIndexPath(), at: .centeredHorizontally, animated: true)
     }
 
-    private func indexOfMajorCell() -> Int {
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        photoGaleryContainerView.collectionView.scrollToItem(at: targetIndexPath(), at: .centeredHorizontally, animated: true)
+    }
+
+    private func targetIndexPath() -> IndexPath {
         let layout = photoGaleryContainerView.collectionView.collectionViewLayout as? UICollectionViewFlowLayout
         let itemWidth = view.frame.size.width
         let proportionalOffset = (layout?.collectionView!.contentOffset.x ?? 0) / itemWidth
         let index = Int(round(proportionalOffset))
         let safeIndex = max(0, min(dataSource.snapshot().numberOfItems - 1, index))
-        return safeIndex
+        return IndexPath(item: safeIndex, section: 0)
     }
 
     private func makeContentOffset(for index: Int) -> CGPoint {

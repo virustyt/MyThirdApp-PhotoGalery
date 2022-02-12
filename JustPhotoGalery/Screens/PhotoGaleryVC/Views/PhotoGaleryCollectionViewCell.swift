@@ -10,12 +10,12 @@ import UIKit
 fileprivate extension Consts {
     static var containerViewLeadingInset: CGFloat = 30
     static var containerViewTrailingInset: CGFloat = 30
-    static var containerViewBottomInset: CGFloat = 30
+    static var containerViewBottomInset: CGFloat = 40
     static var containerViewTopInset: CGFloat = 0
 
     static var containerStackViewLeadingInset: CGFloat = 30
     static var containerStackViewTrailingInset: CGFloat = 30
-    static var containerStackViewBottomInset: CGFloat = 20
+    static var containerStackViewBottomInset: CGFloat = 30
 
     static var linksStackSpacing: CGFloat = 50
     static var finalStackSpacing: CGFloat = 50
@@ -29,8 +29,8 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
 
     static let identifyer: String = String.init(describing: self)
 
-    private var authorsUrlAdress: String?
-    private var photosInfoUrlAdress: String?
+    private var authorLinkTappedClouser: (() -> ())?
+    private var photosLinkTappedClouser: (() -> ())?
 
     private lazy var photoImageView: UIImageView = {
         let imageView = UIImageView()
@@ -46,7 +46,7 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
     }
 
     private lazy var containerStackView: UIStackView = {
-        let linksStack = UIStackView(arrangedSubviews: [authorInfoLinkLabel, photoInfoLinkLabel])
+        let linksStack = UIStackView(arrangedSubviews: [authorsInfoButton, photosInfoButton])
         linksStack.axis = .horizontal
         linksStack.distribution = .equalSpacing
         linksStack.spacing = Consts.linksStackSpacing
@@ -69,28 +69,30 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
         return label
     }()
 
-    private lazy var authorInfoLinkLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont(name: "Montserrat-MediumItalic", size: 15)
-        label.textColor = .white
-        setUpShadows(for: label.layer)
+    private lazy var authorsInfoButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("", for: .normal)
+        button.titleLabel?.font = UIFont(name: "Montserrat-MediumItalic", size: 15)
+        button.titleLabel?.textColor = .white
+        button.backgroundColor = .clear
+        setUpShadows(for: button.titleLabel!.layer)
 
-        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(authorLinkTapped))
-        label.addGestureRecognizer(tapGestureRecognizer)
+        button.addTarget(self, action: #selector(authorLinkTapped), for: .touchUpInside)
 
-        return label
+        return button
     }()
 
-    private lazy var photoInfoLinkLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont(name: "Montserrat-MediumItalic", size: 15)
-        label.textColor = .white
-        setUpShadows(for: label.layer)
+    private lazy var photosInfoButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("", for: .normal)
+        button.titleLabel?.font = UIFont(name: "Montserrat-MediumItalic", size: 15)
+        button.titleLabel?.textColor = .white
+        button.backgroundColor = .clear
+        setUpShadows(for: button.titleLabel!.layer)
 
-        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(photoLinkTapped))
-        label.addGestureRecognizer(tapGestureRecognizer)
+        button.addTarget(self, action: #selector(photoLinkTapped), for: .touchUpInside)
 
-        return label
+        return button
     }()
 
     // MARK: - constraints
@@ -107,7 +109,7 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setUpConstraints()
-        backgroundColor = .gray
+        backgroundColor = .white
     }
 
     required init?(coder: NSCoder) {
@@ -115,12 +117,21 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
     }
 
     // MARK: - public funcs
-    func setUp(from photo: Photo?, andInsets safeAreaInsets: UIEdgeInsets?) {
+    func setUp(from photo: Photo?,
+               photoInsets safeAreaInsets: UIEdgeInsets?,
+               authorsLinkOnTapClouser: @escaping () -> (),
+               photosLinkOnTapClouser: @escaping () -> ()) {
+        photoImageView.image = nil
+        authorNameLabel.text = nil
+        photosInfoButton.setTitle(nil, for: .normal)
+        authorsInfoButton.setTitle(nil, for: .normal)
+
+        photoImageView.setImageFromBGSoftDataStoreBy(photosName: photo?.name)
+
         setContentViewConstraintConstants(from: safeAreaInsets)
 
-        authorsUrlAdress = photo?.photosInfo?.userURL
-        photosInfoUrlAdress = photo?.photosInfo?.photoURL
-        photoImageView.setImageFromBGSoftDataStoreBy(photosName: photo?.name)
+        authorLinkTappedClouser = authorsLinkOnTapClouser
+        photosLinkTappedClouser = photosLinkOnTapClouser
 
         guard let authorName = photo?.photosInfo?.userName
         else {
@@ -129,8 +140,8 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
         }
 
         authorNameLabel.text = authorName
-        photoInfoLinkLabel.text = "about photo"
-        authorInfoLinkLabel.text = "about author"
+        authorsInfoButton.setTitle("about author", for: .normal)
+        photosInfoButton.setTitle("about photo", for: .normal)
     }
 
     // MARK: - private funcs
@@ -172,7 +183,7 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
 
     func setContentViewConstraintConstants(from insets: UIEdgeInsets?) {
         if let recievedInsets = insets {
-//            containerViewTopConstraint.constant = recievedInsets.top > 0 ? recievedInsets.top : 20
+            containerViewTopConstraint.constant = recievedInsets.top > 0 ? recievedInsets.top : 20
             if UIView.userInterfaceLayoutDirection(for: self.semanticContentAttribute) == .leftToRight {
                 containerViewTrailingConstraint.constant = recievedInsets.right > 0 ? -recievedInsets.right : -20
                 containerViewLeadingConstraint.constant = recievedInsets.left > 0 ? recievedInsets.left : 20
@@ -185,15 +196,11 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
     }
 
     @objc private func authorLinkTapped() {
-        
+        authorLinkTappedClouser?()
     }
 
     @objc private func photoLinkTapped() {
-       
+       photosLinkTappedClouser?()
     }
-//
-//    override func layoutSubviews() {
-//        super.layoutSubviews()
-//        print(containerViewTopConstraint.constant)
-//    }
+
 }

@@ -9,6 +9,7 @@ import Foundation
 
 protocol PhotoGaleryViewModelProtocol {
     var errorPhoto: Photo { get }
+    var sortedPhotos: [Photo]? { get }
     func getSortedPhotos(complition: @escaping (Result<[Photo], Error>) -> ())
 }
 
@@ -16,7 +17,7 @@ class PhotoGaleryViewModel: PhotoGaleryViewModelProtocol {
 
     var manager: PhotosInfoManagerProtocol?
 
-    private var sortedPhotos: [Photo]?
+    private(set) var sortedPhotos: [Photo]?
 
     let errorPhoto = Photo(name: "error",
                            photosInfo: PhotosInfo(photoURL: nil,
