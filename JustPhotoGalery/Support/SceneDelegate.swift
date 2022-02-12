@@ -21,10 +21,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         photoGaleryViewController.viewModel = photoGaleryViewModel
         photoGaleryViewController.router = PhotoGaleryRouter(viewController: photoGaleryViewController)
 
+        let navigationVC = UINavigationController(rootViewController: photoGaleryViewController)
+
         guard let mainScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: mainScene)
 
-        window?.rootViewController = photoGaleryViewController
+        window?.rootViewController = navigationVC
         window?.makeKeyAndVisible()
     }
 

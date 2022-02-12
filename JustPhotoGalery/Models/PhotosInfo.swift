@@ -15,9 +15,9 @@ struct PhotosInfo: Codable, Hashable {
     let colors: [String]?
 
     enum CodingKeys: String, CodingKey {
-        case photoURL
-        case userURL
-        case userName
+        case photoURL = "photo_url"
+        case userURL = "user_url"
+        case userName = "user_name"
         case colors
     }
 }

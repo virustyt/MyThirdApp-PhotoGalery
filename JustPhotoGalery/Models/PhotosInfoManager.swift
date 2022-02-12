@@ -45,11 +45,12 @@ class PhotosInfoManager: PhotosInfoManagerProtocol {
             downloadPhotosDataTask = networkManager.getAllPhotos(complition: { [weak self] photosDictionary, error in
                 self?.photos = photosDictionary ?? [:]
                 self?.photosAreUpToDate = true
-                if error != nil {
-                    self?.complitionsToExecute.forEach{ $0(.failure(error!)) }
-                } else if photosDictionary != nil {
-                    self?.complitionsToExecute.forEach{ $0(.success(photosDictionary!)) }
+                if let recievedError = error {
+                    self?.complitionsToExecute.forEach{ $0(.failure(recievedError)) }
+                } else if let recievedPhotos = photosDictionary {
+                    self?.complitionsToExecute.forEach{ $0(.success(recievedPhotos)) }
                 }
+                self?.complitionsToExecute.removeAll()
                 self?.downloadPhotosDataTask = nil
             })
         } else if downloadPhotosDataTask != nil, photosAreUpToDate == false {
