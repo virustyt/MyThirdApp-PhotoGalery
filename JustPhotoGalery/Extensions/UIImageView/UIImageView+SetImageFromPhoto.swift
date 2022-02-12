@@ -16,6 +16,23 @@ extension UIImageView {
             self.image = UIImage(named: "placeholder")
             return
         }
-        ImageClient.shared.setImage(on: self, from: photosUrl, with: UIImage(named: "placeholder"))
+        let hash = photosName.hashValue
+        tag = hash
+
+        image = UIImage(named: "placeholder")
+        ImageClient.shared.getImage(from: photosUrl, complition: {
+            [weak self] image, error in
+
+            guard self?.tag == hash
+            else { return }
+
+            if let recievedImage = image {
+                self?.contentMode = .scaleAspectFill
+                self?.image = recievedImage
+            } else if let _ = error {
+                self?.contentMode = .scaleAspectFit
+                self?.image = UIImage(named: "imageNotFound2")
+            }
+        })
     }
 }
