@@ -20,14 +20,21 @@ fileprivate extension Consts {
     static var linksStackSpacing: CGFloat = 50
     static var finalStackSpacing: CGFloat = 50
 
-    static var labelsShadowRadius: CGFloat = 3
+    static var labelsShadowRadius: CGFloat = 2
     static var labelsSadowOpacity: Float = 1
-    static var labelsSadowOffset: CGSize = .init(width: 4, height: 4)
+    static var labelsSadowOffset: CGSize = .init(width: 2.5, height: 2.5)
+    static var cornerRadius: CGFloat = 20
+
+    static var authorLabelFontSize: CGFloat = 25
+    static var authorButtonFontSize: CGFloat = 15
+    static var photoButtonFontSize: CGFloat = 15
 }
 
 class PhotoGaleryCollectionViewCell: UICollectionViewCell {
 
     static let identifyer: String = String.init(describing: self)
+
+    private var haveShadows = false
 
     private var authorLinkTappedClouser: (() -> ())?
     private var photosLinkTappedClouser: (() -> ())?
@@ -62,20 +69,20 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
 
     private lazy var authorNameLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont(name: "Montserrat-MediumItalic", size: 25)
+        label.font = UIFont(name: "Montserrat-MediumItalic", size: Consts.authorLabelFontSize)
         label.textColor = .white
         label.numberOfLines = 0
-        setUpShadows(for: label.layer)
+        setDropShadow(for: label.layer)
         return label
     }()
 
     private lazy var authorsInfoButton: UIButton = {
         let button = UIButton()
         button.setTitle("", for: .normal)
-        button.titleLabel?.font = UIFont(name: "Montserrat-MediumItalic", size: 15)
+        button.titleLabel?.font = UIFont(name: "Montserrat-MediumItalic", size: Consts.authorButtonFontSize)
         button.titleLabel?.textColor = .white
         button.backgroundColor = .clear
-        setUpShadows(for: button.titleLabel!.layer)
+        setDropShadow(for: button.titleLabel!.layer)
 
         button.addTarget(self, action: #selector(authorLinkTapped), for: .touchUpInside)
 
@@ -85,10 +92,10 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
     private lazy var photosInfoButton: UIButton = {
         let button = UIButton()
         button.setTitle("", for: .normal)
-        button.titleLabel?.font = UIFont(name: "Montserrat-MediumItalic", size: 15)
+        button.titleLabel?.font = UIFont(name: "Montserrat-MediumItalic", size: Consts.photoButtonFontSize)
         button.titleLabel?.textColor = .white
         button.backgroundColor = .clear
-        setUpShadows(for: button.titleLabel!.layer)
+        setDropShadow(for: button.titleLabel!.layer)
 
         button.addTarget(self, action: #selector(photoLinkTapped), for: .touchUpInside)
 
@@ -173,23 +180,25 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
         ])
     }
 
-    private func setUpShadows(for layer: CALayer) {
+    private func setDropShadow(for layer: CALayer) {
         layer.shadowColor = UIColor.black.cgColor
         layer.shadowRadius = Consts.labelsShadowRadius
         layer.shadowOpacity = Consts.labelsSadowOpacity
         layer.shadowOffset = Consts.labelsSadowOffset
+        layer.shadowColor = UIColor.darkGray.cgColor
+//        layer.setDoubleShadows(withShadowCornerRadius: Consts.labelsShadowRadius)
         layer.masksToBounds = false
     }
 
     func setContentViewConstraintConstants(from insets: UIEdgeInsets?) {
         if let recievedInsets = insets {
-            containerViewTopConstraint.constant = recievedInsets.top > 0 ? recievedInsets.top : 20
+            containerViewTopConstraint.constant = recievedInsets.top > 0 ? recievedInsets.top : Consts.containerViewTopInset
             if UIView.userInterfaceLayoutDirection(for: self.semanticContentAttribute) == .leftToRight {
-                containerViewTrailingConstraint.constant = recievedInsets.right > 0 ? -recievedInsets.right : -20
-                containerViewLeadingConstraint.constant = recievedInsets.left > 0 ? recievedInsets.left : 20
+                containerViewTrailingConstraint.constant = recievedInsets.right > 0 ? -recievedInsets.right : -Consts.containerViewTrailingInset
+                containerViewLeadingConstraint.constant = recievedInsets.left > 0 ? recievedInsets.left : Consts.containerViewLeadingInset
             } else {
-                containerViewTrailingConstraint.constant = recievedInsets.right > 0 ? recievedInsets.right : 20
-                containerViewLeadingConstraint.constant = recievedInsets.left > 0 ? -recievedInsets.left : -20
+                containerViewTrailingConstraint.constant = recievedInsets.right > 0 ? recievedInsets.right : Consts.containerViewTrailingInset
+                containerViewLeadingConstraint.constant = recievedInsets.left > 0 ? -recievedInsets.left : -Consts.containerViewLeadingInset
             }
             layoutIfNeeded()
         }
@@ -203,4 +212,17 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
        photosLinkTappedClouser?()
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        if !haveShadows, containerView.bounds != .zero, photoImageView.bounds != .zero{
+
+            print(containerView.layer.bounds,photoImageView.layer.bounds)
+
+            photoImageView.layer.cornerRadius = Consts.cornerRadius
+            containerView.layer.cornerRadius = Consts.cornerRadius
+            containerView.layer.setDoubleShadows(withShadowCornerRadius: Consts.cornerRadius)
+
+            haveShadows = true
+        }
+    }
 }
