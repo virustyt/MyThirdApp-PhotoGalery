@@ -8,10 +8,8 @@
 import UIKit
 
 protocol ImageNetClientProtocol{
-    func downloadImages(imageURL: URL ,
-                        complition: @escaping (UIImage?, Error?) -> ()) -> URLSessionDataTask?
-    func getImage(from imageURL: URL,
-                  complition: ((UIImage?, Error?)-> ())?)
+    func downloadImages(imageURL: URL, complition: @escaping (UIImage?, Error?) -> ()) -> URLSessionDataTask?
+    func getResizedImage(for imageView: UIImageView, from imageURL: URL, complition: @escaping (UIImage?, Error?)-> ())
 }
 
 class ImageClient {
@@ -63,35 +61,66 @@ extension ImageClient: ImageNetClientProtocol{
                let recievedData = data,
                let recievedImage = UIImage(data: recievedData) {
                 self.cache?.storeCachedResponse(CachedURLResponse(response: recievedResponse, data: recievedData), for: imageRequest)
-                self.dispatchResults(model: recievedImage,complitionHandler: complition)
+                complition(recievedImage,nil)
             }
             else{
-                self.dispatchResults(error: error, complitionHandler: complition)
+                complition(nil,error)
             }
         }
         dataTask.resume()
         return dataTask
     }
 
-    func getImage(from imageURL: URL, complition: ((UIImage?, Error?)-> ())? = nil) {
+    func getResizedImage(for imageView: UIImageView, from imageURL: URL, complition: @escaping (UIImage?, Error?)-> ()) {
         cashedDataTasks[imageURL]?.cancel()
         cashedDataTasks[imageURL] = downloadImages(imageURL: imageURL,
-                                                    complition: {[weak self] image, error in
-                                                        guard let self = self else {return}
+                                                   complition: { [weak self] image, error in
+                                                    guard let self = self else {return}
 
-                                                        self.cashedDataTasks[imageURL] = nil
+                                                    self.cashedDataTasks[imageURL] = nil
 
-                                                        guard complition != nil else { return }
-                                                        complition!(image, error)
-                                                    })
-        }
+                                                    if let recievedImage = image {
+                                                        let resizedImage = self.resize(image: recievedImage, for: imageView.bounds.size)
+                                                        self.dispatchResults(model: resizedImage,complitionHandler: complition)
+                                                    } else {
+                                                        self.dispatchResults(error: error, complitionHandler: complition)
+                                                    }
+                                                   })
+    }
 
-    func dispatchResults<Type>(model: Type? = nil, error: Error? = nil, complitionHandler: @escaping (Type?,Error?) -> ()){
+    func dispatchResults<Type>(model: Type? = nil, error: Error? = nil, complitionHandler: @escaping (Type?,Error?) -> ()) {
         guard let responseQueue = responseQueue
         else {
             complitionHandler(model,error)
             return
         }
         responseQueue.async { complitionHandler(model,error) }
+    }
+
+    private func makeRectWithRightRatio(from imageSize: CGSize, for imageViewSize: CGSize) -> CGRect {
+        let viewToImageWidthRatio = imageSize.width / imageViewSize.width
+        let viewToImageHeighthRatio = imageSize.height / imageViewSize.height
+
+        let minRatio = min(viewToImageWidthRatio, viewToImageHeighthRatio)
+
+        let rectWidth = imageSize.width / minRatio
+        let rectHeight = imageSize.height / minRatio
+
+        let pointThatShowsMiddleOfThePicture = viewToImageWidthRatio > viewToImageHeighthRatio ?
+            CGPoint(x: -((rectWidth - imageViewSize.width) / 2), y: 0) : CGPoint(x: 0, y: -((rectHeight - imageViewSize.height) / 2))
+
+        let rect = CGRect(origin: pointThatShowsMiddleOfThePicture,
+                          size: CGSize(width: rectWidth, height: rectHeight))
+
+        return rect
+    }
+
+    private func resize(image: UIImage, for imageViewSize: CGSize) -> UIImage {
+        let rect = self.makeRectWithRightRatio(from: image.size, for: imageViewSize)
+        let renderer = UIGraphicsImageRenderer(size: imageViewSize)
+        let resizedImage = renderer.image { (context) in
+            image.draw(in: rect)
+        }
+        return resizedImage
     }
 }
