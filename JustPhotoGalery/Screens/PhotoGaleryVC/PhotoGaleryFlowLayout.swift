@@ -9,70 +9,51 @@ import UIKit
 
 class PhotoGaleryFlowLayout: UICollectionViewFlowLayout {
 
-    var scaleRatio: CGFloat = 0.8
+    var minCellScale: CGFloat = 0.9
+    var minAlphaBlending: CGFloat = 0.7
+    private(set) var cellsOffsetPercentages: [IndexPath: CGFloat]?
+
+    private var cache = [IndexPath: UICollectionViewLayoutAttributes]()
 
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
-         guard let attributes = super.layoutAttributesForElements(in: rect)
-         else { return nil }
 
-                let centerX = (collectionView?.contentOffset.x ?? 0) + ( (collectionView?.frame.size.width ?? 0) / 2 )
-                for attribute in attributes {
+        var attributes: [UICollectionViewLayoutAttributes] = []
 
-                    var offsetX = centerX - attribute.frame.midX
+        for object in  super.layoutAttributesForElements(in: rect)! {
+            attributes.append(object.copy() as! UICollectionViewLayoutAttributes)
 
-                    if offsetX < 0 {
-                        offsetX *= -1
-                    }
+        }
 
-                    let f: CGFloat = (collectionView?.bounds.width ?? 1)
-                    if offsetX < f {
-                        let offsetPercentage = offsetX  / ( (collectionView?.bounds.width ?? 1) )
-                        var scaleX = 1 - offsetPercentage * (1 - scaleRatio)
+        let centerX = (collectionView?.contentOffset.x ?? 0) + ( (collectionView?.frame.size.width ?? 0) / 2 )
+        for attribute in attributes {
 
-                        if scaleX < scaleRatio {
-                            scaleX = scaleRatio
-                        }
+            var offsetX = centerX - attribute.frame.midX
 
-                        attribute.frame.size = CGSize(width: attribute.frame.size.width  * scaleX,
-                                                      height: attribute.frame.size.height * scaleX)
+            if offsetX < 0 {
+                offsetX *= -1
+            }
 
-                        attribute.frame.origin.y = attribute.frame.origin.y + (( attribute.frame.size.height / scaleX  - attribute.frame.height) ) / 2  
-                    }
+            let f: CGFloat = (collectionView?.bounds.width ?? 1)
+            if offsetX < f {
+                let offsetPercentage = offsetX  / ( (collectionView?.bounds.width ?? 1) )
+                var scaleX = 1 - offsetPercentage * (1 - minCellScale)
+
+                if scaleX < minCellScale {
+                    scaleX = minCellScale
                 }
+
+                attribute.transform = attribute.transform.scaledBy(x: scaleX, y: scaleX)
+
+                let cellAlpha = 1 - offsetPercentage * (1 - minAlphaBlending)
+                attribute.alpha = cellAlpha
+
+                cellsOffsetPercentages?[attribute.indexPath] = offsetPercentage
+            }
+        }
         return attributes
     }
 
     override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         true
-    }
-
-    override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
-        guard let attribute = super.layoutAttributesForItem(at: indexPath)
-        else { return nil }
-
-        let centerX = (collectionView?.contentOffset.x ?? 0) + ( (collectionView?.frame.size.width ?? 0) / 2 )
-
-        var offsetX = centerX - attribute.frame.midX
-        if offsetX < 0 {
-            offsetX *= -1
-        }
-
-        let f: CGFloat = (collectionView?.bounds.width ?? 1)
-
-        if offsetX < f {
-
-            let offsetPercentage = offsetX  / ( (collectionView?.bounds.width ?? 1) )
-            var scaleX = 1 - offsetPercentage * (1 - scaleRatio)
-
-            if scaleX < scaleRatio {
-                scaleX = scaleRatio
-            }
-
-            attribute.frame.size = CGSize(width: attribute.frame.size.width  * scaleX,
-                                          height: attribute.frame.size.height * scaleX)
-
-            attribute.frame.origin.y = attribute.frame.origin.y + (( attribute.frame.size.height / scaleX  - attribute.frame.height) ) / 2
-        }
-        return attribute
     }
 }
