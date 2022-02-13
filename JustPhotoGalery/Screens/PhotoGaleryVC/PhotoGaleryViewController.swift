@@ -10,6 +10,7 @@ import UIKit
 fileprivate extension Consts {
     static let collectionViewMinLineSpacing: CGFloat = 0
     static let collectionViewMinInteritemSpacing: CGFloat = 0
+    static let collectionViewItemSize: CGSize = UIScreen.main.bounds.size
 }
 
 class PhotoGaleryViewController: BaseViewController{
@@ -133,7 +134,7 @@ class PhotoGaleryViewController: BaseViewController{
 // MARK: - UICollectionViewDelegateFlowLayout
 extension PhotoGaleryViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return UIScreen.main.bounds.size
+        Consts.collectionViewItemSize
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
@@ -157,7 +158,7 @@ extension PhotoGaleryViewController: UICollectionViewDelegateFlowLayout {
 
     private func targetIndexPath() -> IndexPath {
         let layout = photoGaleryContainerView.collectionView.collectionViewLayout as? UICollectionViewFlowLayout
-        let itemWidth = view.frame.size.width
+        let itemWidth = Consts.collectionViewItemSize.width
         let proportionalOffset = (layout?.collectionView!.contentOffset.x ?? 0) / itemWidth
         let index = Int(round(proportionalOffset))
         let safeIndex = max(0, min(dataSource.snapshot().numberOfItems - 1, index))
@@ -165,7 +166,7 @@ extension PhotoGaleryViewController: UICollectionViewDelegateFlowLayout {
     }
 
     private func makeContentOffset(for index: Int) -> CGPoint {
-        CGPoint(x: (photoGaleryContainerView.collectionView.visibleCells.first?.bounds.width ?? 0) * CGFloat(index),
+        CGPoint(x: Consts.collectionViewItemSize.width * CGFloat(index),
                 y: 0)
     }
 }

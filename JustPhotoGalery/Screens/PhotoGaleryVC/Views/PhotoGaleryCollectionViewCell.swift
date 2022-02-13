@@ -186,7 +186,6 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
         layer.shadowOpacity = Consts.labelsSadowOpacity
         layer.shadowOffset = Consts.labelsSadowOffset
         layer.shadowColor = UIColor.darkGray.cgColor
-//        layer.setDoubleShadows(withShadowCornerRadius: Consts.labelsShadowRadius)
         layer.masksToBounds = false
     }
 
@@ -214,13 +213,12 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        if !haveShadows, containerView.bounds != .zero, photoImageView.bounds != .zero{
 
-            print(containerView.layer.bounds,photoImageView.layer.bounds)
+        if !haveShadows, containerView.bounds != .zero, photoImageView.bounds != .zero{
 
             photoImageView.layer.cornerRadius = Consts.cornerRadius
             containerView.layer.cornerRadius = Consts.cornerRadius
-            containerView.layer.setDoubleShadows(withShadowCornerRadius: Consts.cornerRadius)
+            setDropShadow(for: containerView.layer)
 
             haveShadows = true
         }
