@@ -98,22 +98,30 @@ extension ImageClient: ImageNetClientProtocol{
     }
 
     private func makeRectWithRightRatio(from imageSize: CGSize, for imageViewSize: CGSize) -> CGRect {
-        let viewToImageWidthRatio = imageSize.width / imageViewSize.width
-        let viewToImageHeighthRatio = imageSize.height / imageViewSize.height
+        // calculate new, bigger, imageSize for image rotation purposes
+        let newImageSize = imageSize.width > imageSize.height ?
+            CGSize(width: imageSize.width * (imageSize.width / imageSize.height),
+                   height: imageSize.width) :
+            CGSize(width: imageSize.height,
+                   height: imageSize.height * (imageSize.height / imageSize.width))
+
+        let viewToImageWidthRatio = newImageSize.width / imageViewSize.width
+        let viewToImageHeighthRatio = newImageSize.height / imageViewSize.height
 
         let minRatio = min(viewToImageWidthRatio, viewToImageHeighthRatio)
 
-        let rectWidth = imageSize.width / minRatio
-        let rectHeight = imageSize.height / minRatio
+        let rectWidth = newImageSize.width / minRatio
+        let rectHeight = newImageSize.height / minRatio
 
         let pointThatShowsMiddleOfThePicture = viewToImageWidthRatio > viewToImageHeighthRatio ?
-            CGPoint(x: -((rectWidth - imageViewSize.width) / 2), y: 0) : CGPoint(x: 0, y: -((rectHeight - imageViewSize.height) / 2))
+            CGPoint(x: -((rectWidth - imageViewSize.width) / 2), y: 0) :
+            CGPoint(x: 0, y: -((rectHeight - imageViewSize.height) / 2))
 
         let rect = CGRect(origin: pointThatShowsMiddleOfThePicture,
                           size: CGSize(width: rectWidth, height: rectHeight))
-
         return rect
     }
+
 
     private func resize(image: UIImage, for imageViewSize: CGSize) -> UIImage {
         let rect = self.makeRectWithRightRatio(from: image.size, for: imageViewSize)

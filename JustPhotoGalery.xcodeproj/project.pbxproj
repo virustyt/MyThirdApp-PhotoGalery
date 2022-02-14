@@ -10,9 +10,6 @@
 		8400C56827B6A7A60047B373 /* String+getLowercasedWords.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8400C56727B6A7A60047B373 /* String+getLowercasedWords.swift */; };
 		8400C56A27B6BBF10047B373 /* WebKitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8400C56927B6BBF10047B373 /* WebKitViewController.swift */; };
 		845A838127B510BE00BC834F /* Photo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845A838027B510BE00BC834F /* Photo.swift */; };
-		84771AFC27BA4670007875E7 /* PhotoGaleryCellLayoutAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84771AFB27BA4670007875E7 /* PhotoGaleryCellLayoutAttributes.swift */; };
-		84771AFE27BA5F21007875E7 /* PhotoGaleryCollectionViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84771AFD27BA5F21007875E7 /* PhotoGaleryCollectionViewLayout.swift */; };
-		84D3573627B933C1009493FE /* PhotoGaleryFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3573527B933C1009493FE /* PhotoGaleryFlowLayout.swift */; };
 		84D3B9E827B3DDF900A6F3D0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3B9E727B3DDF900A6F3D0 /* AppDelegate.swift */; };
 		84D3B9EA27B3DDF900A6F3D0 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3B9E927B3DDF900A6F3D0 /* SceneDelegate.swift */; };
 		84D3B9F127B3DDFC00A6F3D0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84D3B9F027B3DDFC00A6F3D0 /* Assets.xcassets */; };
@@ -37,9 +34,6 @@
 		8400C56727B6A7A60047B373 /* String+getLowercasedWords.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+getLowercasedWords.swift"; sourceTree = "<group>"; };
 		8400C56927B6BBF10047B373 /* WebKitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebKitViewController.swift; sourceTree = "<group>"; };
 		845A838027B510BE00BC834F /* Photo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Photo.swift; sourceTree = "<group>"; };
-		84771AFB27BA4670007875E7 /* PhotoGaleryCellLayoutAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGaleryCellLayoutAttributes.swift; sourceTree = "<group>"; };
-		84771AFD27BA5F21007875E7 /* PhotoGaleryCollectionViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGaleryCollectionViewLayout.swift; sourceTree = "<group>"; };
-		84D3573527B933C1009493FE /* PhotoGaleryFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGaleryFlowLayout.swift; sourceTree = "<group>"; };
 		84D3B9E427B3DDF900A6F3D0 /* JustPhotoGalery.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JustPhotoGalery.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		84D3B9E727B3DDF900A6F3D0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		84D3B9E927B3DDF900A6F3D0 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -79,16 +73,6 @@
 				8400C56727B6A7A60047B373 /* String+getLowercasedWords.swift */,
 			);
 			path = String;
-			sourceTree = "<group>";
-		};
-		84771AFA27BA459F007875E7 /* Layouts */ = {
-			isa = PBXGroup;
-			children = (
-				84D3573527B933C1009493FE /* PhotoGaleryFlowLayout.swift */,
-				84771AFB27BA4670007875E7 /* PhotoGaleryCellLayoutAttributes.swift */,
-				84771AFD27BA5F21007875E7 /* PhotoGaleryCollectionViewLayout.swift */,
-			);
-			path = Layouts;
 			sourceTree = "<group>";
 		};
 		84D3B9DB27B3DDF800A6F3D0 = {
@@ -155,7 +139,6 @@
 		84D3BA0D27B3E9A500A6F3D0 /* PhotoGaleryVC */ = {
 			isa = PBXGroup;
 			children = (
-				84771AFA27BA459F007875E7 /* Layouts */,
 				84D3BA0E27B3E9B200A6F3D0 /* Views */,
 				84D3BA0F27B3E9CE00A6F3D0 /* PhotoGaleryViewController.swift */,
 				84D3BA2727B3FF6200A6F3D0 /* PhotoGaleryViewModel.swift */,
@@ -298,11 +281,9 @@
 				845A838127B510BE00BC834F /* Photo.swift in Sources */,
 				84D3BA1E27B3FC4900A6F3D0 /* ImageNetClient.swift in Sources */,
 				84D3B9E827B3DDF900A6F3D0 /* AppDelegate.swift in Sources */,
-				84D3573627B933C1009493FE /* PhotoGaleryFlowLayout.swift in Sources */,
 				84D3BA2227B3FD1800A6F3D0 /* UIImageView+SetImageFromPhoto.swift in Sources */,
 				84D3BA1027B3E9CE00A6F3D0 /* PhotoGaleryViewController.swift in Sources */,
 				84D3BA0327B3E0BE00A6F3D0 /* Consts.swift in Sources */,
-				84771AFC27BA4670007875E7 /* PhotoGaleryCellLayoutAttributes.swift in Sources */,
 				84D3BA1427B3EA0200A6F3D0 /* PhotoGaleryCollectionViewCell.swift in Sources */,
 				8400C56827B6A7A60047B373 /* String+getLowercasedWords.swift in Sources */,
 				8400C56A27B6BBF10047B373 /* WebKitViewController.swift in Sources */,
@@ -314,7 +295,6 @@
 				84D3B9EA27B3DDF900A6F3D0 /* SceneDelegate.swift in Sources */,
 				84D3BA1A27B3EBC000A6F3D0 /* PhotosInfo.swift in Sources */,
 				84D3BA1227B3E9EB00A6F3D0 /* PhotoGaleryContainerView.swift in Sources */,
-				84771AFE27BA5F21007875E7 /* PhotoGaleryCollectionViewLayout.swift in Sources */,
 				84D3BA2827B3FF6200A6F3D0 /* PhotoGaleryViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -11,9 +11,6 @@ fileprivate extension Consts {
     static let collectionViewMinLineSpacing: CGFloat = 0
     static let collectionViewMinInteritemSpacing: CGFloat = 0
     static let collectionViewItemSize: CGSize = UIScreen.main.bounds.size
-
-    static var collectionViewLabelsMaxStep: CGFloat = 200
-    static var photoImageViewMaxMovingDistance: CGFloat = 100
 }
 
 class PhotoGaleryViewController: BaseViewController{
@@ -75,7 +72,7 @@ class PhotoGaleryViewController: BaseViewController{
 
     // MARK: - private funcs
     @objc private func refreshData(){
-        photoGaleryContainerView.collectionView.refreshControl?.beginRefreshing()
+        photoGaleryContainerView.activityIndicator.startAnimating()
         viewModel?.getSortedPhotos(complition: {
             [weak self] result in
             switch result {
@@ -84,16 +81,8 @@ class PhotoGaleryViewController: BaseViewController{
             case .failure(_):
                 break
             }
-            self?.photoGaleryContainerView.collectionView.refreshControl?.endRefreshing()
+            self?.photoGaleryContainerView.activityIndicator.stopAnimating()
         })
-    }
-
-    private func setUpRefreshControl(){
-        let control = UIRefreshControl()
-        photoGaleryContainerView.collectionView.refreshControl = control
-
-        control.addTarget(self, action: #selector(refreshData), for: .valueChanged)
-        control.attributedTitle = NSAttributedString(string: "Loading...")
     }
 
     private func setUpConstraints() {
@@ -178,37 +167,19 @@ extension PhotoGaleryViewController: UICollectionViewDelegateFlowLayout {
     }
 
     private func changeCellsBehaviourBy(minScale: CGFloat, minAlpha: CGFloat) {
-        let rangeMin: CGFloat = 0
-        let rangeMax: CGFloat = 1
-        let acceptableRange = rangeMin...rangeMax
-        let minCellScale: CGFloat = acceptableRange.contains(minScale) ? minScale : 1
-        let minAlphaBlending: CGFloat = acceptableRange.contains(minScale) ? minAlpha : 1
+        let visibleRectsCenterXOffset = photoGaleryContainerView.collectionView.contentOffset.x
+            + ( photoGaleryContainerView.collectionView.frame.size.width / 2 )
 
-        let visibleRectsCenterXOffset = photoGaleryContainerView.collectionView.contentOffset.x + ( photoGaleryContainerView.collectionView.frame.size.width / 2 )
         for visibleCell in photoGaleryContainerView.collectionView.visibleCells {
             guard let cell = visibleCell as? PhotoGaleryCollectionViewCell
             else {return}
-
-            cell.transform = .identity
 
             let offsetX = visibleRectsCenterXOffset - cell.frame.midX
             let positiveOffsetX = abs(offsetX)
 
             if positiveOffsetX < photoGaleryContainerView.collectionView.bounds.width {
                 let offsetPercentage = positiveOffsetX  / photoGaleryContainerView.collectionView.bounds.width
-                var scaleX = 1 - offsetPercentage * (1 - minCellScale)
-
-                if scaleX < minCellScale {
-                    scaleX = minCellScale
-                }
-                cell.transform = cell.transform.scaledBy(x: scaleX, y: scaleX)
-                let cellAlpha = 1 - offsetPercentage * (1 - minAlphaBlending)
-                cell.alpha = cellAlpha
-
-                let containerStackViewCurrentStepPrecentage = 1 - scaleX
-                let currentStepSize = Consts.collectionViewLabelsMaxStep * containerStackViewCurrentStepPrecentage
-
-                cell.moveContent(by: currentStepSize, direction: offsetX >= 0 ? .right : .left)
+                cell.moveContent(by: offsetPercentage, direction: offsetX >= 0 ? .right : .left)
             }
         }
     }

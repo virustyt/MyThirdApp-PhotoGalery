@@ -29,7 +29,10 @@ fileprivate extension Consts {
     static var authorButtonFontSize: CGFloat = 15
     static var photoButtonFontSize: CGFloat = 15
 
-    static var photoImageViewMaxMovingDistance: CGFloat = 100
+    static var photoImageViewMovingSpeed: CGFloat = 5
+    static var labelsMovingSpeed: CGFloat = 500
+    static var minCellScale: CGFloat = 0.9
+    static var minCelAlphaBlending: CGFloat = 0.7
 }
 
 class PhotoGaleryCollectionViewCell: UICollectionViewCell {
@@ -91,7 +94,7 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
         button.backgroundColor = .clear
         setDropShadow(for: button.titleLabel!.layer)
 
-        button.addTarget(self, action: #selector(authorLinkTapped), for: .touchUpInside)
+        button.addTarget(self, action: #selector(PhotoGaleryCollectionViewCell.authorLinkTapped), for: .touchUpInside)
 
         return button
     }()
@@ -104,7 +107,7 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
         button.backgroundColor = .clear
         setDropShadow(for: button.titleLabel!.layer)
 
-        button.addTarget(self, action: #selector(photoLinkTapped), for: .touchUpInside)
+        button.addTarget(self, action: #selector(PhotoGaleryCollectionViewCell.photoLinkTapped), for: .touchUpInside)
 
         return button
     }()
@@ -125,6 +128,9 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
                                                                                                         constant: -Consts.containerStackViewTrailingInset)
     private lazy var containerStackviewBottomConstraint =  containerStackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor,
                                                                                                        constant: -Consts.containerStackViewBottomInset)
+
+    private lazy var photoImageViewLeadingConstraint =  photoImageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor)
+    private lazy var photoImageViewTrailingConstraint =  photoImageView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor)
 
     // MARK: - inits
     override init(frame: CGRect) {
@@ -181,8 +187,8 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
             containerViewBottomConstraint,
 
             photoImageView.topAnchor.constraint(equalTo: containerView.topAnchor),
-            photoImageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            photoImageView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+            photoImageViewLeadingConstraint,
+            photoImageViewTrailingConstraint,
             photoImageView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
 
             containerStackviewLeadingConstraint,
@@ -214,10 +220,37 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
         }
     }
 
-    func moveContent(by distance: CGFloat, direction: Direction) {
-        containerStackviewLeadingConstraint.constant = Consts.containerStackViewLeadingInset + (direction == .left ? -distance : distance)
-        containerStackviewTraiingConstraint.constant = -(Consts.containerStackViewTrailingInset + (direction == .left ? distance : -distance))
-//        containerStackviewBottomConstraint.constant = Consts.containerStackViewBottomInset +
+    func moveContent(by offsetPercentage: CGFloat, direction: Direction) {
+        let rangeMin: CGFloat = 0
+        let rangeMax: CGFloat = 1
+        let acceptableRange = rangeMin...rangeMax
+        let minCellScale: CGFloat = acceptableRange.contains(Consts.minCellScale) ? Consts.minCellScale : 1
+        let minAlphaBlending: CGFloat = acceptableRange.contains(Consts.minCelAlphaBlending) ? Consts.minCelAlphaBlending : 1
+
+        transform = .identity
+
+        var scaleX = 1 - offsetPercentage * (1 - minCellScale)
+
+        if scaleX < minCellScale {
+            scaleX = minCellScale
+        }
+
+        transform = transform.scaledBy(x: scaleX, y: scaleX)
+        let cellAlpha = 1 - offsetPercentage * (1 - minAlphaBlending)
+        alpha = cellAlpha
+
+        let containerStackViewCurrentStepPrecentage = 1 - scaleX
+        let currentLabelsStepSize = Consts.labelsMovingSpeed * containerStackViewCurrentStepPrecentage
+        let currentLabelStep = direction == .left ? -currentLabelsStepSize : currentLabelsStepSize
+
+        containerStackviewLeadingConstraint.constant = Consts.containerStackViewLeadingInset + currentLabelStep
+        containerStackviewTraiingConstraint.constant = -(Consts.containerStackViewTrailingInset - currentLabelStep)
+
+        let currentPhotoStep = direction == .left ? -offsetPercentage / 5 : offsetPercentage / 5
+        photoImageView.layer.contentsRect = CGRect(x: -currentPhotoStep,
+                                                   y: 0,
+                                                   width: 1 - currentPhotoStep,
+                                                   height: 1)
         containerView.layoutIfNeeded()
     }
 
