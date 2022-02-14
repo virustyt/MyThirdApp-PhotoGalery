@@ -10,6 +10,7 @@ import UIKit
 fileprivate extension Consts {
     static let collectionViewMinLineSpacing: CGFloat = 0
     static let collectionViewMinInteritemSpacing: CGFloat = 0
+    static let collectionViewItemSize: CGSize = UIScreen.main.bounds.size
 }
 
 class PhotoGaleryViewController: BaseViewController{
@@ -71,7 +72,7 @@ class PhotoGaleryViewController: BaseViewController{
 
     // MARK: - private funcs
     @objc private func refreshData(){
-        photoGaleryContainerView.collectionView.refreshControl?.beginRefreshing()
+        photoGaleryContainerView.activityIndicator.startAnimating()
         viewModel?.getSortedPhotos(complition: {
             [weak self] result in
             switch result {
@@ -80,16 +81,8 @@ class PhotoGaleryViewController: BaseViewController{
             case .failure(_):
                 break
             }
-            self?.photoGaleryContainerView.collectionView.refreshControl?.endRefreshing()
+            self?.photoGaleryContainerView.activityIndicator.stopAnimating()
         })
-    }
-
-    private func setUpRefreshControl(){
-        let control = UIRefreshControl()
-        photoGaleryContainerView.collectionView.refreshControl = control
-
-        control.addTarget(self, action: #selector(refreshData), for: .valueChanged)
-        control.attributedTitle = NSAttributedString(string: "Loading...")
     }
 
     private func setUpConstraints() {
@@ -133,7 +126,7 @@ class PhotoGaleryViewController: BaseViewController{
 // MARK: - UICollectionViewDelegateFlowLayout
 extension PhotoGaleryViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return UIScreen.main.bounds.size
+        Consts.collectionViewItemSize
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
@@ -155,9 +148,13 @@ extension PhotoGaleryViewController: UICollectionViewDelegateFlowLayout {
         photoGaleryContainerView.collectionView.scrollToItem(at: targetIndexPath(), at: .centeredHorizontally, animated: true)
     }
 
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        changeCellsBehaviourBy(minScale: 0.9, minAlpha: 0.7)
+    }
+
     private func targetIndexPath() -> IndexPath {
         let layout = photoGaleryContainerView.collectionView.collectionViewLayout as? UICollectionViewFlowLayout
-        let itemWidth = view.frame.size.width
+        let itemWidth = Consts.collectionViewItemSize.width
         let proportionalOffset = (layout?.collectionView!.contentOffset.x ?? 0) / itemWidth
         let index = Int(round(proportionalOffset))
         let safeIndex = max(0, min(dataSource.snapshot().numberOfItems - 1, index))
@@ -165,8 +162,26 @@ extension PhotoGaleryViewController: UICollectionViewDelegateFlowLayout {
     }
 
     private func makeContentOffset(for index: Int) -> CGPoint {
-        CGPoint(x: (photoGaleryContainerView.collectionView.visibleCells.first?.bounds.width ?? 0) * CGFloat(index),
+        CGPoint(x: Consts.collectionViewItemSize.width * CGFloat(index),
                 y: 0)
+    }
+
+    private func changeCellsBehaviourBy(minScale: CGFloat, minAlpha: CGFloat) {
+        let visibleRectsCenterXOffset = photoGaleryContainerView.collectionView.contentOffset.x
+            + ( photoGaleryContainerView.collectionView.frame.size.width / 2 )
+
+        for visibleCell in photoGaleryContainerView.collectionView.visibleCells {
+            guard let cell = visibleCell as? PhotoGaleryCollectionViewCell
+            else {return}
+
+            let offsetX = visibleRectsCenterXOffset - cell.frame.midX
+            let positiveOffsetX = abs(offsetX)
+
+            if positiveOffsetX < photoGaleryContainerView.collectionView.bounds.width {
+                let offsetPercentage = positiveOffsetX  / photoGaleryContainerView.collectionView.bounds.width
+                cell.moveContent(by: offsetPercentage, direction: offsetX >= 0 ? .right : .left)
+            }
+        }
     }
 }
 

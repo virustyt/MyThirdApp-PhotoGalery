@@ -11,6 +11,25 @@ class PhotoGaleryContainerView: UIView {
 
     private var layout: UICollectionViewFlowLayout?
 
+
+    private(set) var activityIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .medium)
+        return indicator
+    }()
+
+    private(set) lazy var collectionView: UICollectionView = {
+        layout = UICollectionViewFlowLayout()
+        layout?.scrollDirection = .horizontal
+
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout!)
+        collectionView.register(PhotoGaleryCollectionViewCell.self,
+                                forCellWithReuseIdentifier: PhotoGaleryCollectionViewCell.identifyer)
+
+        collectionView.backgroundColor = UIColor.clear.withAlphaComponent(0)
+
+        return collectionView
+    }()
+
     // MARK: - inits
     init(collectionViewDelegate: UICollectionViewDelegate? = nil, collectionCiewDataSource: UICollectionViewDataSource? = nil) {
         super.init(frame: .zero)
@@ -23,27 +42,21 @@ class PhotoGaleryContainerView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private(set) lazy var collectionView: UICollectionView = {
-        layout = UICollectionViewFlowLayout()
-        layout?.scrollDirection = .horizontal
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout!)
-        collectionView.register(PhotoGaleryCollectionViewCell.self,
-                                forCellWithReuseIdentifier: PhotoGaleryCollectionViewCell.identifyer)
-
-        collectionView.backgroundColor = UIColor.clear.withAlphaComponent(0)
-
-        return collectionView
-    }()
-
+    // MARK: - private funcs
     private func setUpConstraints() {
         addSubview(collectionView)
+        addSubview(activityIndicator)
 
         collectionView.translatesAutoresizingMaskIntoConstraints = false
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            collectionView.bottomAnchor.constraint(equalTo: bottomAnchor),
+
+            activityIndicator.centerXAnchor.constraint(equalTo: centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
     }
 }

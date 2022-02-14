@@ -20,14 +20,30 @@ fileprivate extension Consts {
     static var linksStackSpacing: CGFloat = 50
     static var finalStackSpacing: CGFloat = 50
 
-    static var labelsShadowRadius: CGFloat = 3
+    static var labelsShadowRadius: CGFloat = 2
     static var labelsSadowOpacity: Float = 1
-    static var labelsSadowOffset: CGSize = .init(width: 4, height: 4)
+    static var labelsSadowOffset: CGSize = .init(width: 2.5, height: 2.5)
+    static var cornerRadius: CGFloat = 20
+
+    static var authorLabelFontSize: CGFloat = 25
+    static var authorButtonFontSize: CGFloat = 15
+    static var photoButtonFontSize: CGFloat = 15
+
+    static var photoImageViewMovingSpeed: CGFloat = 5
+    static var labelsMovingSpeed: CGFloat = 500
+    static var minCellScale: CGFloat = 0.9
+    static var minCelAlphaBlending: CGFloat = 0.7
 }
 
 class PhotoGaleryCollectionViewCell: UICollectionViewCell {
 
+    enum Direction {
+        case left, right, none
+    }
+
     static let identifyer: String = String.init(describing: self)
+
+    private var haveShadows = false
 
     private var authorLinkTappedClouser: (() -> ())?
     private var photosLinkTappedClouser: (() -> ())?
@@ -57,27 +73,28 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
         finalStack.distribution = .equalSpacing
         finalStack.spacing = Consts.finalStackSpacing
         finalStack.alignment = .center
+
         return finalStack
     }()
 
     private lazy var authorNameLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont(name: "Montserrat-MediumItalic", size: 25)
+        label.font = UIFont(name: "Montserrat-MediumItalic", size: Consts.authorLabelFontSize)
         label.textColor = .white
         label.numberOfLines = 0
-        setUpShadows(for: label.layer)
+        setDropShadow(for: label.layer)
         return label
     }()
 
     private lazy var authorsInfoButton: UIButton = {
         let button = UIButton()
         button.setTitle("", for: .normal)
-        button.titleLabel?.font = UIFont(name: "Montserrat-MediumItalic", size: 15)
+        button.titleLabel?.font = UIFont(name: "Montserrat-MediumItalic", size: Consts.authorButtonFontSize)
         button.titleLabel?.textColor = .white
         button.backgroundColor = .clear
-        setUpShadows(for: button.titleLabel!.layer)
+        setDropShadow(for: button.titleLabel!.layer)
 
-        button.addTarget(self, action: #selector(authorLinkTapped), for: .touchUpInside)
+        button.addTarget(self, action: #selector(PhotoGaleryCollectionViewCell.authorLinkTapped), for: .touchUpInside)
 
         return button
     }()
@@ -85,12 +102,12 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
     private lazy var photosInfoButton: UIButton = {
         let button = UIButton()
         button.setTitle("", for: .normal)
-        button.titleLabel?.font = UIFont(name: "Montserrat-MediumItalic", size: 15)
+        button.titleLabel?.font = UIFont(name: "Montserrat-MediumItalic", size: Consts.photoButtonFontSize)
         button.titleLabel?.textColor = .white
         button.backgroundColor = .clear
-        setUpShadows(for: button.titleLabel!.layer)
+        setDropShadow(for: button.titleLabel!.layer)
 
-        button.addTarget(self, action: #selector(photoLinkTapped), for: .touchUpInside)
+        button.addTarget(self, action: #selector(PhotoGaleryCollectionViewCell.photoLinkTapped), for: .touchUpInside)
 
         return button
     }()
@@ -104,6 +121,16 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
                                                                                              constant: Consts.containerViewLeadingInset)
     private lazy var containerViewBottomConstraint = containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor,
                                                                                            constant: -Consts.containerViewBottomInset)
+
+    private lazy var containerStackviewLeadingConstraint = containerStackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor,
+                                                                                                       constant: Consts.containerStackViewLeadingInset)
+    private lazy var containerStackviewTraiingConstraint = containerStackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor,
+                                                                                                        constant: -Consts.containerStackViewTrailingInset)
+    private lazy var containerStackviewBottomConstraint =  containerStackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor,
+                                                                                                       constant: -Consts.containerStackViewBottomInset)
+
+    private lazy var photoImageViewLeadingConstraint =  photoImageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor)
+    private lazy var photoImageViewTrailingConstraint =  photoImageView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor)
 
     // MARK: - inits
     override init(frame: CGRect) {
@@ -160,39 +187,71 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
             containerViewBottomConstraint,
 
             photoImageView.topAnchor.constraint(equalTo: containerView.topAnchor),
-            photoImageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            photoImageView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+            photoImageViewLeadingConstraint,
+            photoImageViewTrailingConstraint,
             photoImageView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
 
-            containerStackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor,
-                                                        constant: Consts.containerStackViewLeadingInset),
-            containerStackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor,
-                                                         constant: -Consts.containerStackViewTrailingInset),
-            containerStackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor,
-                                                       constant: -Consts.containerStackViewBottomInset)
+            containerStackviewLeadingConstraint,
+            containerStackviewTraiingConstraint,
+            containerStackviewBottomConstraint
         ])
     }
 
-    private func setUpShadows(for layer: CALayer) {
+    private func setDropShadow(for layer: CALayer) {
         layer.shadowColor = UIColor.black.cgColor
         layer.shadowRadius = Consts.labelsShadowRadius
         layer.shadowOpacity = Consts.labelsSadowOpacity
         layer.shadowOffset = Consts.labelsSadowOffset
+        layer.shadowColor = UIColor.darkGray.cgColor
         layer.masksToBounds = false
     }
 
-    func setContentViewConstraintConstants(from insets: UIEdgeInsets?) {
+    private func setContentViewConstraintConstants(from insets: UIEdgeInsets?) {
         if let recievedInsets = insets {
-            containerViewTopConstraint.constant = recievedInsets.top > 0 ? recievedInsets.top : 20
+            containerViewTopConstraint.constant = recievedInsets.top > 0 ? recievedInsets.top : Consts.containerViewTopInset
             if UIView.userInterfaceLayoutDirection(for: self.semanticContentAttribute) == .leftToRight {
-                containerViewTrailingConstraint.constant = recievedInsets.right > 0 ? -recievedInsets.right : -20
-                containerViewLeadingConstraint.constant = recievedInsets.left > 0 ? recievedInsets.left : 20
+                containerViewTrailingConstraint.constant = recievedInsets.right > 0 ? -recievedInsets.right : -Consts.containerViewTrailingInset
+                containerViewLeadingConstraint.constant = recievedInsets.left > 0 ? recievedInsets.left : Consts.containerViewLeadingInset
             } else {
-                containerViewTrailingConstraint.constant = recievedInsets.right > 0 ? recievedInsets.right : 20
-                containerViewLeadingConstraint.constant = recievedInsets.left > 0 ? -recievedInsets.left : -20
+                containerViewTrailingConstraint.constant = recievedInsets.right > 0 ? recievedInsets.right : Consts.containerViewTrailingInset
+                containerViewLeadingConstraint.constant = recievedInsets.left > 0 ? -recievedInsets.left : -Consts.containerViewLeadingInset
             }
             layoutIfNeeded()
         }
+    }
+
+    func moveContent(by offsetPercentage: CGFloat, direction: Direction) {
+        let rangeMin: CGFloat = 0
+        let rangeMax: CGFloat = 1
+        let acceptableRange = rangeMin...rangeMax
+        let minCellScale: CGFloat = acceptableRange.contains(Consts.minCellScale) ? Consts.minCellScale : 1
+        let minAlphaBlending: CGFloat = acceptableRange.contains(Consts.minCelAlphaBlending) ? Consts.minCelAlphaBlending : 1
+
+        transform = .identity
+
+        var scaleX = 1 - offsetPercentage * (1 - minCellScale)
+
+        if scaleX < minCellScale {
+            scaleX = minCellScale
+        }
+
+        transform = transform.scaledBy(x: scaleX, y: scaleX)
+        let cellAlpha = 1 - offsetPercentage * (1 - minAlphaBlending)
+        alpha = cellAlpha
+
+        let containerStackViewCurrentStepPrecentage = 1 - scaleX
+        let currentLabelsStepSize = Consts.labelsMovingSpeed * containerStackViewCurrentStepPrecentage
+        let currentLabelStep = direction == .left ? -currentLabelsStepSize : currentLabelsStepSize
+
+        containerStackviewLeadingConstraint.constant = Consts.containerStackViewLeadingInset + currentLabelStep
+        containerStackviewTraiingConstraint.constant = -(Consts.containerStackViewTrailingInset - currentLabelStep)
+
+        let currentPhotoStep = direction == .left ? -offsetPercentage / 5 : offsetPercentage / 5
+        photoImageView.layer.contentsRect = CGRect(x: -currentPhotoStep,
+                                                   y: 0,
+                                                   width: 1 - currentPhotoStep,
+                                                   height: 1)
+        containerView.layoutIfNeeded()
     }
 
     @objc private func authorLinkTapped() {
@@ -203,4 +262,16 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
        photosLinkTappedClouser?()
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        if !haveShadows, containerView.bounds != .zero, photoImageView.bounds != .zero{
+
+            photoImageView.layer.cornerRadius = Consts.cornerRadius
+            containerView.layer.cornerRadius = Consts.cornerRadius
+            setDropShadow(for: containerView.layer)
+
+            haveShadows = true
+        }
+    }
 }
