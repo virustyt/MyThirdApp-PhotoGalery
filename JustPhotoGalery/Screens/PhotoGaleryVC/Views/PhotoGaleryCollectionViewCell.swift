@@ -28,9 +28,15 @@ fileprivate extension Consts {
     static var authorLabelFontSize: CGFloat = 25
     static var authorButtonFontSize: CGFloat = 15
     static var photoButtonFontSize: CGFloat = 15
+
+    static var photoImageViewMaxMovingDistance: CGFloat = 100
 }
 
 class PhotoGaleryCollectionViewCell: UICollectionViewCell {
+
+    enum Direction {
+        case left, right, none
+    }
 
     static let identifyer: String = String.init(describing: self)
 
@@ -64,6 +70,7 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
         finalStack.distribution = .equalSpacing
         finalStack.spacing = Consts.finalStackSpacing
         finalStack.alignment = .center
+
         return finalStack
     }()
 
@@ -111,6 +118,13 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
                                                                                              constant: Consts.containerViewLeadingInset)
     private lazy var containerViewBottomConstraint = containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor,
                                                                                            constant: -Consts.containerViewBottomInset)
+
+    private lazy var containerStackviewLeadingConstraint = containerStackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor,
+                                                                                                       constant: Consts.containerStackViewLeadingInset)
+    private lazy var containerStackviewTraiingConstraint = containerStackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor,
+                                                                                                        constant: -Consts.containerStackViewTrailingInset)
+    private lazy var containerStackviewBottomConstraint =  containerStackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor,
+                                                                                                       constant: -Consts.containerStackViewBottomInset)
 
     // MARK: - inits
     override init(frame: CGRect) {
@@ -171,12 +185,9 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
             photoImageView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
             photoImageView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
 
-            containerStackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor,
-                                                        constant: Consts.containerStackViewLeadingInset),
-            containerStackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor,
-                                                         constant: -Consts.containerStackViewTrailingInset),
-            containerStackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor,
-                                                       constant: -Consts.containerStackViewBottomInset)
+            containerStackviewLeadingConstraint,
+            containerStackviewTraiingConstraint,
+            containerStackviewBottomConstraint
         ])
     }
 
@@ -189,7 +200,7 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
         layer.masksToBounds = false
     }
 
-    func setContentViewConstraintConstants(from insets: UIEdgeInsets?) {
+    private func setContentViewConstraintConstants(from insets: UIEdgeInsets?) {
         if let recievedInsets = insets {
             containerViewTopConstraint.constant = recievedInsets.top > 0 ? recievedInsets.top : Consts.containerViewTopInset
             if UIView.userInterfaceLayoutDirection(for: self.semanticContentAttribute) == .leftToRight {
@@ -201,6 +212,13 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
             }
             layoutIfNeeded()
         }
+    }
+
+    func moveContent(by distance: CGFloat, direction: Direction) {
+        containerStackviewLeadingConstraint.constant = Consts.containerStackViewLeadingInset + (direction == .left ? -distance : distance)
+        containerStackviewTraiingConstraint.constant = -(Consts.containerStackViewTrailingInset + (direction == .left ? distance : -distance))
+//        containerStackviewBottomConstraint.constant = Consts.containerStackViewBottomInset +
+        containerView.layoutIfNeeded()
     }
 
     @objc private func authorLinkTapped() {

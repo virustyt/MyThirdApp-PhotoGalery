@@ -24,7 +24,8 @@ class PhotoGaleryContainerView: UIView {
     }
 
     private(set) lazy var collectionView: UICollectionView = {
-        layout = PhotoGaleryFlowLayout()
+//        layout = PhotoGaleryFlowLayout()
+        layout = UICollectionViewFlowLayout()
         layout?.scrollDirection = .horizontal
 
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout!)
