@@ -167,7 +167,6 @@ extension PhotoGaleryViewController: UICollectionViewDelegateFlowLayout {
             return
         }
         photoGaleryContainerView.collectionView.scrollToItem(at: targetIndexPath(), at: .centeredHorizontally, animated: true)
-        startNewTimer()
     }
 
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
@@ -177,6 +176,11 @@ extension PhotoGaleryViewController: UICollectionViewDelegateFlowLayout {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         changeCellsBehaviour()
         returnToCenter()
+        timer?.invalidate()
+    }
+
+    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        startNewTimer()
     }
 
     private func targetIndexPath() -> IndexPath {
