@@ -9,7 +9,7 @@ import UIKit
 
 protocol ImageNetClientProtocol{
     func downloadImages(imageURL: URL, complition: @escaping (UIImage?, Error?) -> ()) -> URLSessionDataTask?
-    func getResizedImage(for imageView: UIImageView, from imageURL: URL, complition: @escaping (UIImage?, Error?)-> ())
+    func getResizedImage(for imageView: UIImageView, from imageURL: URL, withPlaceholder placeholder: UIImage, complition: @escaping (UIImage?, Error?)-> ())
 }
 
 class ImageClient {
@@ -20,6 +20,8 @@ class ImageClient {
     private var cache: URLCache? {
         urlSession.configuration.urlCache
     }
+
+    private var resizedImages = [URL: UIImage]()
 
     private static var sharedInstanceCache: URLCache = {
         let cachesURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
@@ -71,8 +73,15 @@ extension ImageClient: ImageNetClientProtocol{
         return dataTask
     }
 
-    func getResizedImage(for imageView: UIImageView, from imageURL: URL, complition: @escaping (UIImage?, Error?)-> ()) {
+    func getResizedImage(for imageView: UIImageView, from imageURL: URL, withPlaceholder placeholder: UIImage, complition: @escaping (UIImage?, Error?)-> ()) {
         cashedDataTasks[imageURL]?.cancel()
+
+        if let cashedImage = resizedImages[imageURL] {
+            dispatchResults(model: cashedImage, complitionHandler: complition)
+            return
+        }
+
+        imageView.image = placeholder
         cashedDataTasks[imageURL] = downloadImages(imageURL: imageURL,
                                                    complition: { [weak self] image, error in
                                                     guard let self = self else {return}
@@ -81,6 +90,7 @@ extension ImageClient: ImageNetClientProtocol{
 
                                                     if let recievedImage = image {
                                                         let resizedImage = self.resize(image: recievedImage, for: imageView.bounds.size)
+                                                        self.resizedImages[imageURL] = resizedImage
                                                         self.dispatchResults(model: resizedImage,complitionHandler: complition)
                                                     } else {
                                                         self.dispatchResults(error: error, complitionHandler: complition)
