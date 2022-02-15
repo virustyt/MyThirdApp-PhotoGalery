@@ -31,7 +31,8 @@ class PhotoGaleryViewController: BaseViewController{
     private lazy var photoGaleryContainerView = PhotoGaleryContainerView(collectionViewDelegate: self,
                                                                          collectionCiewDataSource: self)
 
-    private var lastVisibleCellsIndexPath: IndexPath?
+    private lazy var lastVisibleCellsIndexPath = IndexPath(item: viewModel?.bufferPhotosCount ?? 0, section: 0)
+
     private var collectionViewCellSize: CGSize {
         view.frame.size
     }
@@ -64,9 +65,7 @@ class PhotoGaleryViewController: BaseViewController{
     }
 
     override func viewDidLayoutSubviews() {
-        if let indexPath = lastVisibleCellsIndexPath {
-            photoGaleryContainerView.collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
-        }
+        photoGaleryContainerView.collectionView.scrollToItem(at: lastVisibleCellsIndexPath, at: .centeredHorizontally, animated: true)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -99,11 +98,23 @@ class PhotoGaleryViewController: BaseViewController{
                           repeats: true) {
             [weak self] timer in
 
-            let indexPath = self?.lastVisibleCellsIndexPath ?? IndexPath(item: self?.viewModel?.bufferPhotosCount ?? 0, section: 0)
-            let newIndexPath = IndexPath(item: indexPath.item + 1, section: indexPath.section)
-            self?.lastVisibleCellsIndexPath = newIndexPath
-            self?.photoGaleryContainerView.collectionView.scrollToItem(at: newIndexPath, at: .centeredHorizontally, animated: true)
+            guard let self = self
+            else { return }
+
+            let photosCollectionView = self.photoGaleryContainerView.collectionView
+
+            var newIndexPath = IndexPath(item: self.lastVisibleCellsIndexPath.item + 1, section: self.lastVisibleCellsIndexPath.section)
+            if newIndexPath.item > photosCollectionView.numberOfItems(inSection: 0) - (self.viewModel?.bufferPhotosCount ?? 1) {
+                newIndexPath.item = 0 + (self.viewModel?.bufferPhotosCount ?? 0) + 1
+            }
+            if newIndexPath.item < (self.viewModel?.bufferPhotosCount ?? 1) - 1 {
+                newIndexPath.item = photosCollectionView.numberOfItems(inSection: 0) - 1 - (self.viewModel?.bufferPhotosCount ?? 0)
+            }
+
+            self.lastVisibleCellsIndexPath = newIndexPath
+            self.photoGaleryContainerView.collectionView.scrollToItem(at: newIndexPath, at: .centeredHorizontally, animated: true)
         }
+
 
         timer.tolerance = 0.1
         RunLoop.current.add(timer, forMode: .common)
@@ -166,8 +177,8 @@ extension PhotoGaleryViewController: UICollectionViewDelegateFlowLayout {
         guard velocity.x == .zero else {
             return
         }
-        photoGaleryContainerView.collectionView.scrollToItem(at: targetIndexPath(), at: .centeredHorizontally, animated: true)
-        startNewTimer()
+        lastVisibleCellsIndexPath = targetIndexPath()
+        photoGaleryContainerView.collectionView.scrollToItem(at: lastVisibleCellsIndexPath, at: .centeredHorizontally, animated: true)
     }
 
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
@@ -177,6 +188,11 @@ extension PhotoGaleryViewController: UICollectionViewDelegateFlowLayout {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         changeCellsBehaviour()
         returnToCenter()
+        timer?.invalidate()
+    }
+
+    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        startNewTimer()
     }
 
     private func targetIndexPath() -> IndexPath {
