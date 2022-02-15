@@ -10,8 +10,8 @@ import UIKit
 fileprivate extension Consts {
     static var containerViewLeadingInset: CGFloat = 30
     static var containerViewTrailingInset: CGFloat = 30
-    static var containerViewBottomInset: CGFloat = 40
-    static var containerViewTopInset: CGFloat = 0
+    static var containerViewBottomInset: CGFloat = 30
+    static var containerViewTopInset: CGFloat = 30
 
     static var containerStackViewLeadingInset: CGFloat = 30
     static var containerStackViewTrailingInset: CGFloat = 30
@@ -44,6 +44,7 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
     static let identifyer: String = String.init(describing: self)
 
     private var haveShadows = false
+    private var lastSettedPhotoName: String?
 
     private var authorLinkTappedClouser: (() -> ())?
     private var photosLinkTappedClouser: (() -> ())?
@@ -148,27 +149,31 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
                photoInsets safeAreaInsets: UIEdgeInsets?,
                authorsLinkOnTapClouser: @escaping () -> (),
                photosLinkOnTapClouser: @escaping () -> ()) {
-        photoImageView.image = nil
-        authorNameLabel.text = nil
-        photosInfoButton.setTitle(nil, for: .normal)
-        authorsInfoButton.setTitle(nil, for: .normal)
+        if lastSettedPhotoName != photo?.name || lastSettedPhotoName == nil {
+            lastSettedPhotoName = photo?.name
 
-        photoImageView.setImageFromBGSoftDataStoreBy(photosName: photo?.name)
+            photoImageView.image = nil
+            authorNameLabel.text = nil
+            photosInfoButton.setTitle(nil, for: .normal)
+            authorsInfoButton.setTitle(nil, for: .normal)
 
-        setContentViewConstraintConstants(from: safeAreaInsets)
+            photoImageView.setImageFromBGSoftDataStoreBy(photosName: photo?.name)
 
-        authorLinkTappedClouser = authorsLinkOnTapClouser
-        photosLinkTappedClouser = photosLinkOnTapClouser
+            setContentViewConstraintConstants(from: safeAreaInsets)
 
-        guard let authorName = photo?.photosInfo?.userName
-        else {
-            authorNameLabel.text = "author is a mystery"
-            return
+            authorLinkTappedClouser = authorsLinkOnTapClouser
+            photosLinkTappedClouser = photosLinkOnTapClouser
+
+            guard let authorName = photo?.photosInfo?.userName
+            else {
+                authorNameLabel.text = "author is a mystery"
+                return
+            }
+
+            authorNameLabel.text = authorName
+            authorsInfoButton.setTitle("about author", for: .normal)
+            photosInfoButton.setTitle("about photo", for: .normal)
         }
-
-        authorNameLabel.text = authorName
-        authorsInfoButton.setTitle("about author", for: .normal)
-        photosInfoButton.setTitle("about photo", for: .normal)
     }
 
     // MARK: - private funcs

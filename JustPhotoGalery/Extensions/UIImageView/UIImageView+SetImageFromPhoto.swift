@@ -20,9 +20,7 @@ extension UIImageView {
         let hash = photosName.hashValue
         tag = hash
 
-        image = UIImage(named: "placeholder")
-
-        ImageClient.shared.getResizedImage(for: self, from: photosUrl) {
+        ImageClient.shared.getResizedImage(for: self, from: photosUrl, withPlaceholder: UIImage(named: "placeholder") ?? UIImage() ) {
             [weak self] resizedImage, error in
 
             guard let self = self,
@@ -35,12 +33,12 @@ extension UIImageView {
                                   duration: 1.0,
                                   options: [.curveEaseOut, .transitionCrossDissolve],
                                   animations: { self.image = recievedImage })
-            } else if let _ = error {
-                self.contentMode = .scaleAspectFit
+            } else {
+                self.contentMode = .scaleAspectFill
                 UIView.transition(with: self,
                                   duration: 1.0,
                                   options: [.curveEaseOut, .transitionCrossDissolve],
-                                  animations: { self.image = UIImage(named: "imageNotFound2") })
+                                  animations: { self.image = UIImage(named: "imageNotFound") })
             }
         }
     }
