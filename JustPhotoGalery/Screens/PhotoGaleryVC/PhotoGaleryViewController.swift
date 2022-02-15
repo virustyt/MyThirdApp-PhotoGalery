@@ -11,6 +11,9 @@ fileprivate extension Consts {
     static let collectionViewMinLineSpacing: CGFloat = 0
     static let collectionViewMinInteritemSpacing: CGFloat = 0
     static let collectionViewItemSize: CGSize = UIScreen.main.bounds.size
+
+    static var inactiveTimeBeforeScroll: Double = 5
+    static var inactiveTimeBetweenScroll: Double = 5
 }
 
 class PhotoGaleryViewController: BaseViewController{
@@ -32,6 +35,8 @@ class PhotoGaleryViewController: BaseViewController{
     private var collectionViewCellSize: CGSize {
         view.frame.size
     }
+
+    private var timer: Timer?
 
     // MARK: - life cycle
     override func viewDidLoad() {
@@ -66,6 +71,7 @@ class PhotoGaleryViewController: BaseViewController{
 
     override func viewWillDisappear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(false, animated: false)
+        timer?.invalidate()
         super.viewWillDisappear(animated)
     }
 
@@ -79,11 +85,31 @@ class PhotoGaleryViewController: BaseViewController{
             switch result {
             case .success(_):
                 photosCollectionView.reloadData()
+                self?.startNewTimer()
             case .failure(_):
                 break
             }
             self?.photoGaleryContainerView.activityIndicator.stopAnimating()
         })
+    }
+
+    private func startNewTimer() {
+        let timer = Timer(fire: .init(timeIntervalSinceNow: Consts.inactiveTimeBeforeScroll),
+                          interval: Consts.inactiveTimeBetweenScroll,
+                          repeats: true) {
+            [weak self] timer in
+
+            let indexPath = self?.lastVisibleCellsIndexPath ?? IndexPath(item: self?.viewModel?.bufferPhotosCount ?? 0, section: 0)
+            let newIndexPath = IndexPath(item: indexPath.item + 1, section: indexPath.section)
+            self?.lastVisibleCellsIndexPath = newIndexPath
+            self?.photoGaleryContainerView.collectionView.scrollToItem(at: newIndexPath, at: .centeredHorizontally, animated: true)
+        }
+
+        timer.tolerance = 0.1
+        RunLoop.current.add(timer, forMode: .common)
+
+        self.timer?.invalidate()
+        self.timer = timer
     }
 
     private func setUpConstraints() {
@@ -141,6 +167,7 @@ extension PhotoGaleryViewController: UICollectionViewDelegateFlowLayout {
             return
         }
         photoGaleryContainerView.collectionView.scrollToItem(at: targetIndexPath(), at: .centeredHorizontally, animated: true)
+        startNewTimer()
     }
 
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {

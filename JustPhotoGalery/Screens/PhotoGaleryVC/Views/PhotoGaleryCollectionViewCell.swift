@@ -10,8 +10,8 @@ import UIKit
 fileprivate extension Consts {
     static var containerViewLeadingInset: CGFloat = 30
     static var containerViewTrailingInset: CGFloat = 30
-    static var containerViewBottomInset: CGFloat = 40
-    static var containerViewTopInset: CGFloat = 0
+    static var containerViewBottomInset: CGFloat = 30
+    static var containerViewTopInset: CGFloat = 30
 
     static var containerStackViewLeadingInset: CGFloat = 30
     static var containerStackViewTrailingInset: CGFloat = 30
