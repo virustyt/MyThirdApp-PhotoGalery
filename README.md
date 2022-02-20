@@ -13,7 +13,7 @@ An iOS application that shows photos from BGSoft server.
    - infinite scrolling in both directions
    - auto-scrolling when the user is "inactive" for more than 5 seconds
 
-##Workflow
+## Workflow
 
 https://user-images.githubusercontent.com/16354030/154852946-3c115988-29cf-4bc5-9dd3-123bfcf77e7c.mov
 
