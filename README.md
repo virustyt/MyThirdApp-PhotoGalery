@@ -7,11 +7,12 @@ An iOS application that shows photos from BGSoft server.
  - router pattern
  - resizing UIImages
  - UICollectionViews:
-   - paging
-   - parallax effect
-   - infinite scrolling in both directions
-   - auto-scrolling when the user is "inactive" for more than n seconds
+  - paging
+  - parallax effect
+  - infinite scrolling in both directions
+  - auto-scrolling when the user is "inactive" for more than n seconds
 
 ##Workflow
-https://user-images.githubusercontent.com/16354030/154852897-e8d5ab24-bbdb-4f7d-ae6c-70e02fe4a596.mov
+
+https://user-images.githubusercontent.com/16354030/154852946-3c115988-29cf-4bc5-9dd3-123bfcf77e7c.mov
 
