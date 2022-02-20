@@ -11,7 +11,7 @@ An iOS application that shows photos from BGSoft server.
    - paging
    - parallax effect
    - infinite scrolling in both directions
-   - auto-scrolling when the user is "inactive" for more than n seconds
+   - auto-scrolling when the user is "inactive" for more than 5 seconds
 
 ##Workflow
 
