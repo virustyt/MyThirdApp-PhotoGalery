@@ -45,6 +45,7 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
 
     private var haveShadows = false
     private var lastSettedPhotoName: String?
+    private var cellWasRotated = false
 
     private var authorLinkTappedClouser: (() -> ())?
     private var photosLinkTappedClouser: (() -> ())?
@@ -147,9 +148,10 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
     // MARK: - public funcs
     func setUp(from photo: Photo?,
                photoInsets safeAreaInsets: UIEdgeInsets?,
+               cellWasRotated: Bool,
                authorsLinkOnTapClouser: @escaping () -> (),
                photosLinkOnTapClouser: @escaping () -> ()) {
-        if lastSettedPhotoName != photo?.name || lastSettedPhotoName == nil {
+//        if lastSettedPhotoName != photo?.name || lastSettedPhotoName == nil {
             lastSettedPhotoName = photo?.name
 
             photoImageView.image = nil
@@ -173,7 +175,7 @@ class PhotoGaleryCollectionViewCell: UICollectionViewCell {
             authorNameLabel.text = authorName
             authorsInfoButton.setTitle("about author", for: .normal)
             photosInfoButton.setTitle("about photo", for: .normal)
-        }
+//        }
     }
 
     // MARK: - private funcs
