@@ -25,13 +25,13 @@ class PhotoGaleryViewController: BaseViewController{
         case main
     }
 
-    var viewModel: PhotoGaleryViewModelProtocol?
-    var router: PhotoGaleryRouterProtocol?
+    var viewModel: PhotoGaleryViewModelProtocol!
+    var router: PhotoGaleryRouterProtocol!
 
     private lazy var photoGaleryContainerView = PhotoGaleryContainerView(collectionViewDelegate: self,
                                                                          collectionCiewDataSource: self)
 
-    private lazy var lastVisibleCellsIndexPath = IndexPath(item: viewModel?.bufferPhotosCount ?? 0, section: 0)
+    private lazy var lastVisibleCellsIndexPath = IndexPath(item: viewModel.bufferPhotosCount, section: 0)
     private var viewWasRotated = false
 
     private var collectionViewCellSize: CGSize {
@@ -81,7 +81,7 @@ class PhotoGaleryViewController: BaseViewController{
         let photosCollectionView = photoGaleryContainerView.collectionView
 
         photoGaleryContainerView.activityIndicator.startAnimating()
-        viewModel?.getSortedPhotos(complition: {
+        viewModel.getSortedPhotos(complition: {
             [weak self] result in
             switch result {
             case .success(_):
@@ -106,11 +106,11 @@ class PhotoGaleryViewController: BaseViewController{
             let photosCollectionView = self.photoGaleryContainerView.collectionView
 
             var newIndexPath = IndexPath(item: self.lastVisibleCellsIndexPath.item + 1, section: self.lastVisibleCellsIndexPath.section)
-            if newIndexPath.item > photosCollectionView.numberOfItems(inSection: 0) - (self.viewModel?.bufferPhotosCount ?? 1) {
-                newIndexPath.item = 0 + (self.viewModel?.bufferPhotosCount ?? 0) + 1
+            if newIndexPath.item > photosCollectionView.numberOfItems(inSection: 0) - self.viewModel.bufferPhotosCount {
+                newIndexPath.item = 0 + self.viewModel.bufferPhotosCount + 1
             }
-            if newIndexPath.item < (self.viewModel?.bufferPhotosCount ?? 1) - 1 {
-                newIndexPath.item = photosCollectionView.numberOfItems(inSection: 0) - 1 - (self.viewModel?.bufferPhotosCount ?? 0)
+            if newIndexPath.item < self.viewModel.bufferPhotosCount - 1 {
+                newIndexPath.item = photosCollectionView.numberOfItems(inSection: 0) - 1 - self.viewModel.bufferPhotosCount
             }
 
             self.lastVisibleCellsIndexPath = newIndexPath
@@ -139,7 +139,7 @@ class PhotoGaleryViewController: BaseViewController{
 
     private func setUpCollectionViewForCourusel() {
         let photosCollectionView = photoGaleryContainerView.collectionView
-        photosCollectionView.contentOffset.x = CGFloat((viewModel?.bufferPhotosCount ?? 0)) * collectionViewCellSize.width
+        photosCollectionView.contentOffset.x = CGFloat(viewModel.bufferPhotosCount) * collectionViewCellSize.width
     }
 }
 
@@ -231,7 +231,7 @@ extension PhotoGaleryViewController: UICollectionViewDelegateFlowLayout {
 // MARK: - UICollectionViewDataSource
 extension PhotoGaleryViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        viewModel?.sortedPhotos.count ?? 0
+        viewModel.sortedPhotos.count
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -240,16 +240,16 @@ extension PhotoGaleryViewController: UICollectionViewDataSource {
             for: indexPath) as? PhotoGaleryCollectionViewCell
         else { return UICollectionViewCell() }
 
-        let photo = viewModel?.sortedPhotos[indexPath.item]
-        let authorUrl = photo?.photosInfo?.userURL
-        let photosDescriptionUrl = photo?.photosInfo?.photoURL
+        let photo = viewModel.sortedPhotos[indexPath.item]
+        let authorUrl = photo.photosInfo?.userURL
+        let photosDescriptionUrl = photo.photosInfo?.photoURL
 
         cell.setUp(from: photo,
                     photoInsets: view.safeAreaInsets,
                     cellWasRotated: viewWasRotated,
-                    authorsLinkOnTapClouser: { [weak self] in self?.router?.showWebLinkVC(for: authorUrl,
+                    authorsLinkOnTapClouser: { [weak self] in self?.router.showWebLinkVC(for: authorUrl,
                                                                                           withTitle: "photos author")},
-                    photosLinkOnTapClouser: { [weak self] in self?.router?.showWebLinkVC(for: photosDescriptionUrl,
+                    photosLinkOnTapClouser: { [weak self] in self?.router.showWebLinkVC(for: photosDescriptionUrl,
                                                                                          withTitle: "photos details")})
         return cell
     }
